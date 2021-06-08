@@ -1,0 +1,3 @@
+	fastcgi_param SERVER_NAME autopi.dsba.net;
+	fastcgi_param HTTP_HOST autopi.dsba.net;
+	fastcgi_param HTTPS on;
