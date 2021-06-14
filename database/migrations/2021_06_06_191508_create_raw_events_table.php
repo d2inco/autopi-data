@@ -18,6 +18,11 @@ class CreateRawEventsTable extends Migration
 
             $table->text('raw_data');
 
+            $table->boolean('processed')->default(false);
+            $table->boolean('duplicate')->unsignedBigInteger()->default(0);
+
+            $table->string('filename')->unique();
+
             $table->timestamps();
         });
     }

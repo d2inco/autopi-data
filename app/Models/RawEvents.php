@@ -11,5 +11,8 @@ class RawEvents extends Model
 
     protected $fillable = [
         'raw_data',
+        'processed',
+        'duplicate',
+        'filename',
     ];
 }
