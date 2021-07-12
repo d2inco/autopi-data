@@ -27,6 +27,8 @@ class CreateEventsTable extends Migration
 
             $table->string("trigger_desc"); // @trigger.description
 
+            $table->text("event_data");
+
 
             $table->timestamps();
         });

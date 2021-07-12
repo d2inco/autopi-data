@@ -12,6 +12,7 @@ class Events extends Model
     protected $fillable = [
         'raw_id',
         'rec', 'event_type', 'event_tag', 'ts',
-        'trigger_desc'
+        'trigger_desc',
+        'event_data',
     ];
 }
