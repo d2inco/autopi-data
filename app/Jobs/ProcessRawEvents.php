@@ -194,6 +194,15 @@ class ProcessRawEvents implements ShouldQueue
                 printf("in:  %s\n", $e['event']['@rec']);
                 printf("out: %s\n", Carbon::parse($e['event']['@rec'])->format('Y-m-d H:i:s.u'));
 
+                $event_data_hash = $e['event'];
+                unset($event_data_hash['@rec']);
+                unset($event_data_hash['@t']);
+                unset($event_data_hash['@tag']);
+                unset($event_data_hash['@ts']);
+                unset($event_data_hash['@uid']);
+                unset($event_data_hash['@vid']);
+
+
                 Events::updateOrCreate(
                     ['raw_id' => $r->id],
                     [
@@ -202,8 +211,10 @@ class ProcessRawEvents implements ShouldQueue
                         'event_tag' => $e['event']['@tag'],
                         'ts'  => Carbon::parse($e['event']['@ts'])->format('Y-m-d H:i:s.u'),
                         'trigger_desc' => $e['trigger']['description'],
+                        'event_data' => json_encode($event_data_hash, JSON_PRETTY_PRINT),
                     ]
                 );
+
 
                 $r->processed = 1;
                 $r->save();
@@ -212,6 +223,6 @@ class ProcessRawEvents implements ShouldQueue
             }
         }
 
-        printf("Returning from handling the ProcessRawEvents() job.\n");
+        // printf("Returning from handling the ProcessRawEvents() job.\n");
     }
 }
