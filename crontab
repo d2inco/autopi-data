@@ -1,0 +1,3 @@
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+0-59/10 * * * *  app  cd ~/*/ && ./artisan autopi:process-events >> /tmp/autopi-process-events.log 2>&1
