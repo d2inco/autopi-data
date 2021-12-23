@@ -47,6 +47,8 @@ class APIWebhookController extends Controller
             }
             fprintf($fp, "%s", $payload);
             fclose($fp);
+        } else {
+            $fn_json = "not captured";
         }
 
         /////////////////////////////////////////
