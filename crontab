@@ -1,3 +1,26 @@
+#
+# This is the crontab file used automatically within the container
+# version of AUTOPI.   Installed-system will use the system cron location.
+#
+
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-0-59/10 * * * *  app  cd ~/*/ && ./artisan autopi:process-events >> /tmp/autopi-process-events.log 2>&1
+#	# This remains in place until queueing is in place.
+#	0-59/10 * * * *  app  cd ~/*/ && ./artisan autopi:process-events >> /tmp/autopi-process-events.log 2>&1
+
+# Laravel.log links
+@reboot            app  cd ~/*/ && ln -sf ./laravel-`date +\%Y-\%m-\%d`.log storage/logs/laravel.log >> /tmp/link.log 2>&1
+0,30 * * * *       app  cd ~/*/ && ln -sf ./laravel-`date +\%Y-\%m-\%d`.log storage/logs/laravel.log >> /tmp/link.log 2>&1
+
+@reboot            app	cd ~/*/ && touch storage/logs/laravel-`date +\%Y-\%m-\%d`.log && chmod 0664 storage/logs/laravel-`date +\%Y-\%m-\%d`.log >> /tmp/link.log 2>&1
+0-5 0,1 * * *      app	cd ~/*/ && touch storage/logs/laravel-`date +\%Y-\%m-\%d`.log && chmod 0664 storage/logs/laravel-`date +\%Y-\%m-\%d`.log >> /tmp/link.log 2>&1
+
+# QUEUE Runners:
+#    queue:listen - when you kick off a new queue:work for a single job, so, no reloads needed
+#    queue:work   - will need restarting when code changes.
+
+# Queues run: High
+* * * * *          app  [ `pgrep -cf 'php ./artisan.*queue:listen.*name=hi-pri-1'` -le 1 ] && cd ~/*/ && ./artisan  queue:listen --name=hi-pri-1 --queue=high --sleep=3 --tries=2 --delay=5 -vvv >> /tmp/queue.hi-pri-1.log.`date +\%Y-\%m-\%d` 2>&1
+# Queues run: all
+* * * * *          app  [ `pgrep -cf 'php ./artisan.*queue:listen.*name=lo-pri-1'` -le 1 ] && cd ~/*/ && ./artisan  queue:listen --name=lo-pri-1 --queue=high,medium,default,low  --sleep=3 --tries=2 --delay=5 -vvv >> /tmp/queue.lo-pri-1.log.`date +\%Y-\%m-\%d` 2>&1
+# * * * * *          app  [ `pgrep -cf 'php ./artisan.*queue:listen.*name=lo-pri-2'` -le 1 ] && cd ~/*/ && ./artisan  queue:listen --name=lo-pri-2 --queue=high,medium,default,low  --sleep=3 --tries=2 --delay=5 -vvv >> /tmp/queue.lo-pri-2.log.`date +\%Y-\%m-\%d` 2>&1
