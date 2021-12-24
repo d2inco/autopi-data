@@ -14,5 +14,11 @@ class Events extends Model
         'rec', 'event_type', 'event_tag', 'ts',
         'trigger_desc',
         'event_data',
+        'extra_data',
+    ];
+
+    protected $casts = [
+        'event_data' => 'array',
+        'extra_data' => 'array',
     ];
 }
