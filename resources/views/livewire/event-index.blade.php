@@ -2,7 +2,13 @@
     <div class="py-6">
         <div class="max-w-md mx-auto sm:px-6 lg:px-8">
             <label for="search-text">Search</label>
-            <input type="text" id="search-text" wire:model="query" />
+            <input type="text" id="search-text" placeholder="Search (RegExp)" class="placeholder-blue-400 placeholder-opacity-40" autofocus
+                wire:model="search" />
+            <a href="#" wire:click.prevent="$set('search', '')">[X]</a>
+            @if ($errorMessage != '')
+                <br />
+                <span class="error-text">{{ $errorMessage }}</span>
+            @endif
         </div>
     </div>
     <div class="max-w-7xl mx-auto">
