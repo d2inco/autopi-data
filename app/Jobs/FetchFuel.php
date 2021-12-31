@@ -42,7 +42,11 @@ class FetchFuel implements ShouldQueue
             return $result;
         }
 
-        $fuelLevels = $autoPi->fuel(3);
+        $fuelLevels = $autoPi->fuel(
+            10,
+            \Carbon\Carbon::now()->subDays(3)->format('Y-m-d H:i:s'),
+            \Carbon\Carbon::now()->format('Y-m-d H:i:s'),
+        );
 
         foreach ($fuelLevels['data'] as $f) {
             printf("%s:  %7.3f   %s\n", $f['ts'], $f['value'], $f['unit']);
@@ -50,7 +54,11 @@ class FetchFuel implements ShouldQueue
         print "\n";
 
 
-        $positions = $autoPi->position(4);
+        $positions = $autoPi->position(
+            10,
+            \Carbon\Carbon::now()->subDays(3)->format('Y-m-d H:i:s'),
+            \Carbon\Carbon::now()->format('Y-m-d H:i:s'),
+        );
         printf("Total positions: %d\n", $positions['count']);
         foreach ($positions['data'] as $p) {
             printf(
