@@ -18,14 +18,15 @@
         <div class="max-w-full mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                 <table width="100%" class="border border-2">
+                    <tr>
                     <th>ID</th>
                     <th>Raw ID</th>
                     <th>TS (MT)</th>
                     <th class="text-left">Type</th>
                     <th class="text-left">Tag</th>
-                    <th class="text-left">Extra</th>
+                    </tr>
                     @foreach ($eventList as $event)
-                        <livewire:event-item :event="$event" :key="$event->id" />
+                        <livewire:event-item :event="$event" :key="$event->id.'.'.$event->updated_at" />
                     @endforeach
                 </table>
             </div>

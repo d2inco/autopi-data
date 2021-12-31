@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 
 use App\Models\Events;
-use Livewire\WithPagination;
 use App\Models\User;
 
 class EventIndex extends Component
@@ -25,10 +25,6 @@ class EventIndex extends Component
     protected $listeners = [
         'eventAdded',
     ];
-
-    public function eventAdded($eventId)
-    {
-    }
 
     public function mount()
     {
@@ -59,5 +55,9 @@ class EventIndex extends Component
         return view('livewire.event-index', [
             'eventList' => $eventList->paginate(15)
         ]);
+    }
+
+    public function eventAdded($eventId)
+    {
     }
 }
