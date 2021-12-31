@@ -77,7 +77,16 @@ class ProcessRawEvents implements ShouldQueue
         $unicodeCleanupReplace[] = '"\1"';
 
         if (isset($r['event'])) {
+            $eventOneOffPattern = array();
+            $eventOneOffReplace = array();
+            // $eventOneOffPattern[] = "/u'{-reason-: ('[^'][^']*)', 'type': '('[^'][^']*)'}',/";
+            $eventOneOffPattern[] =    "/u'{-reason-: '([^'][^']*)', 'type': '([^'][^']*)'}',/";
+            $eventOneOffReplace[] = '"\1 (\2)",';
+
+            $r['event'] = preg_replace($eventOneOffPattern, $eventOneOffReplace, $r['event']);
+
             $r['event'] = preg_replace($unicodeCleanupPattern, $unicodeCleanupReplace, $r['event']);
+
             $event = json_decode($r['event'], true);
             if (json_last_error() == 0) {
                 ksort($event);
