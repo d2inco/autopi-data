@@ -212,7 +212,7 @@ class ProcessRawEvents implements ShouldQueue
                 unset($event_data_hash['@vid']);
 
 
-                Events::updateOrCreate(
+                $eventRec = Events::updateOrCreate(
                     ['raw_id' => $r->id],
                     [
                         'rec' => Carbon::parse($e['event']['@rec'])->format('Y-m-d H:i:s.u'),
@@ -220,10 +220,14 @@ class ProcessRawEvents implements ShouldQueue
                         'event_tag' => $e['event']['@tag'],
                         'ts'  => Carbon::parse($e['event']['@ts'])->format('Y-m-d H:i:s.u'),
                         'trigger_desc' => $e['trigger']['description'],
-                        'event_data' => json_encode($event_data_hash, JSON_PRETTY_PRINT),
+                        'event_data' => $event_data_hash,
                     ]
                 );
 
+                if (preg_match('/^(vehicle\/position\/(standstill|moving))|(vehicle\/engine\/(not_running|running|stopped))/', $eventRec['event_tag'])) {
+                    printf("It's a position report. (Event->id is %d)\n", $eventRec['id']);
+                    GetStatsAtMovementChange::dispatch($eventRec['id'], $eventRec['ts']);
+                }
 
                 $r->processed = 1;
                 $r->save();
