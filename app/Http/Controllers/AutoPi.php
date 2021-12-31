@@ -140,14 +140,15 @@ class AutoPi extends Controller
         $start = -999,
         $end = -999
     ) {
-        if ($start = -999) {
+
+        if ($start == -999) {
             $start = \Carbon\CarbonImmutable::now()->subDays(7)->format('Y-m-d H:i:s');
         }
-        if ($end = -999) {
+        if ($end == -999) {
             $end = \Carbon\CarbonImmutable::now()->format('Y-m-d H:i:s');
         }
 
-        Log::debug('AutoPi::fuel(): start', [
+        Log::debug('AutoPi::fuel(): start:', [
             'num' => $num,
             'start' => $start,
             'end' => $end,
@@ -176,10 +177,10 @@ class AutoPi extends Controller
         $start = -999,
         $end = -999
     ) {
-        if ($start = -999) {
+        if ($start == -999) {
             $start = \Carbon\CarbonImmutable::now()->subDays(7)->format('Y-m-d H:i:s');
         }
-        if ($end = -999) {
+        if ($end == -999) {
             $end = \Carbon\CarbonImmutable::now()->format('Y-m-d H:i:s');
         }
 
