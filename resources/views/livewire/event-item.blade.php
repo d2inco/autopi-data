@@ -7,5 +7,18 @@
     </td>
     <td>{{ $event->event_type }}</td>
     <td>{{ $event->event_tag }} </td>
-    <td class="whitespace-pre-line">{{ preg_replace('/(^{\n|\n}$)/', '', $event->event_data) }}</td>
+    <td>
+        @forelse ($event->event_data?? array()  as $k => $v)
+            {{ $k }}: {{ trim($v) }}<br />
+        @empty
+            ---
+        @endforelse
+    </td>
+    <td>
+        @forelse ($event->extra_data ?? array() as $k => $v)
+            {{ $k }}: {{ trim($v) }}<br />
+        @empty
+            ---
+        @endforelse
+    </td>
 </tr>

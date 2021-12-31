@@ -14,7 +14,7 @@ class AddExtraDataToEventsTable extends Migration
     public function up()
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->text('extra_data')->nullable();
+            $table->text('extra_data')->after('event_data')->nullable();
         });
     }
 
