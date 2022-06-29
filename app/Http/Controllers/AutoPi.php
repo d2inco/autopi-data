@@ -72,7 +72,7 @@ class AutoPi extends Controller
             }
 
             $this->token = $loginResponse['token'];
-            Cache::put('token', $this->token, 300);
+            Cache::put('token', $this->token, 600);
         } else {
             Log::debug('AutoPi::initialize(): Token obtained from cache, Ensuring validity.');
 
@@ -110,8 +110,8 @@ class AutoPi extends Controller
                 Log::info("AutoPi::initialize(): could not fetch device-id");
                 return 1;
             }
-            $this->deviceId = $deviceIdResp[0]['id'];
-            Cache::put('device_id', $this->deviceId, 10);
+            $this->deviceId = $deviceIdResp['results'][0]['id'];
+            Cache::put('device_id', $this->deviceId, 600);
         } else {
             Log::info('AutoPi::initialize(): Have token, and DeviceID.');
         }
