@@ -219,7 +219,7 @@ class ProcessRawEvents implements ShouldQueue
                         'event_type' => $e['event']['@t'],
                         'event_tag' => $e['event']['@tag'],
                         'ts'  => Carbon::parse($e['event']['@ts'])->format('Y-m-d H:i:s.u'),
-                        'trigger_desc' => $e['trigger']['description'],
+                        'trigger_desc' => $e['trigger']['description'] ?? "",
                         'event_data' => $event_data_hash,
                     ]
                 );
