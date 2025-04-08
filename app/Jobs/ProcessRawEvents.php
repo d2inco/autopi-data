@@ -21,24 +21,34 @@ class ProcessRawEvents implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    private $verbose;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($verbose = false)
     {
-        //
+        $this->verbose = $verbose;
     }
 
     private function convert_json_to_structure($jsontext)
     {             // {{{2
         global $debug_json_decode;
 
+        // $debug_json_decode = true;
+
         if ($debug_json_decode) {
             printf("json input:\n%s\n-----------\n", $jsontext);
         }
 
+
+        $jsontext = preg_replace(
+            ",\"David's AutoPi\",",
+            "'Davids AutoPi'",
+            $jsontext
+        );
 
         $jsontext = preg_replace(
             '/u"([^\'"]*?)\'([^\'"]*?)\'([^"]*?)",/',
@@ -52,6 +62,24 @@ class ProcessRawEvents implements ShouldQueue
             $jsontext
         );
 
+        $jsontext = preg_replace(
+            '/system\/\*/',
+            'system/WILDCARD',
+            $jsontext
+        );
+
+        $jsontext = preg_replace(
+            '/"(Unable to verify.*?no supported protocol found)"/',
+            '\'\1\'',
+            $jsontext
+        );
+
+        $jsontext = preg_replace(
+            '/of protocol \'auto\': /',
+            'of protocol AUTO: ',
+            $jsontext
+        );
+
         if ($debug_json_decode) {
             printf("After first replacement:\n%s\n-----------\n", $jsontext);
         }
@@ -59,6 +87,9 @@ class ProcessRawEvents implements ShouldQueue
         $r = json_decode($jsontext, true);
 
         if ($debug_json_decode) {
+            printf("line: %d\n", __LINE__);
+            printf ("last error: '%s'\n", json_last_error());
+            printf ("last error mesg: '%s'\n", json_last_error_msg());
             print "First decode:\n";
             print_r($r);
         }
@@ -66,9 +97,9 @@ class ProcessRawEvents implements ShouldQueue
         $unicodeCleanupPattern = array();
         $unicodeCleanupReplace = array();
 
-        $unicodeCleanupPattern[] = '/({|: |, )u\'/';
+        $unicodeCleanupPattern[] = '/({|: |, )u?\'/';
         $unicodeCleanupReplace[] = '\1"';
-        $unicodeCleanupPattern[] = '/\'(: |, |}, |}$)/';
+        $unicodeCleanupPattern[] = '/\'(: |, |}, |}$|}{2,4}(,|$))/';
         $unicodeCleanupReplace[] = '"\1';
 
         $unicodeCleanupPattern[] = '/(: )(True|False|None|<Device:[^>]*>)(, ")/';
