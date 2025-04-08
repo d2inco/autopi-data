@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use PhpMqtt\Client\Facades\MQTT;
 
 use Carbon\Carbon;
 
@@ -190,15 +191,27 @@ class ProcessRawEvents implements ShouldQueue
      */
     public function handle()
     {
-        $rawEvents = RawEvents::where('processed', 0)->get();
+        $rawEvents = RawEvents::where('processed', 0)
+            ->orderBy('created_at')
+            ->get();
 
         foreach ($rawEvents as $r) {
             printf("Raw Row %3d: %s\n", $r->id, $r->updated_at);
 
             $e = $this->convert_json_to_structure($r->raw_data);
-            print("Event:\n");
-            print_r($e['event']);
 
+            print("Event:\n");
+            if ($this->verbose) {
+                print_r($e['event']);
+            } else {
+                printf("  %s: ", $e['event']['@rec']);
+                printf("%s  ", $e['event']['@ts']);
+                printf("%-20.20s  ", $e['event']['@t']);
+                printf("%-25.25s  ", $e['event']['@tag']);
+                printf("%s  ", $e['event']['@rec']);
+
+                printf("\n");
+            }
             try {
                 printf("in:  %s\n", $e['event']['@rec']);
                 printf("out: %s\n", Carbon::parse($e['event']['@rec'])->format('Y-m-d H:i:s.u'));
@@ -224,9 +237,25 @@ class ProcessRawEvents implements ShouldQueue
                     ]
                 );
 
-                if (preg_match('/^(vehicle\/position\/(standstill|moving))|(vehicle\/engine\/(not_running|running|stopped))/', $eventRec['event_tag'])) {
+                MQTT::publish('vehicle/rebel/lasttag', $eventRec['event_tag'] ?? 'n/a', true);
+
+                if (preg_match('/^(vehicle\/position\/(standstill|moving))|^(vehicle\/motion\/)|^(vehicle\/engine\/(not_running|running|stopped))/', $eventRec['event_tag'])) {
                     printf("It's a position report. (Event->id is %d)\n", $eventRec['id']);
                     GetStatsAtMovementChange::dispatch($eventRec['id'], $eventRec['ts']);
+                } else {
+                    printf("Not a position report; nothing to do. (Event->id is: %d)\n", $eventRec['id']);
+                    if (0 == 1) {
+                        // don't turn this on in production
+                        GetStatsAtMovementChange::dispatch($eventRec['id'], $eventRec['ts']);
+                    }
+                }
+
+                if (preg_match('/^(?:system\/power\/(.*))/', $eventRec['event_tag'], $matches)) {
+                    MQTT::publish('vehicle/rebel/power/state', $matches[1], true);
+                    MQTT::publish('vehicle/rebel/power/ts', $eventRec['ts'], true);
+                } elseif (preg_match('/^(?:vehicle\/engine\/(.*))/', $eventRec['event_tag'], $matches)) {
+                    MQTT::publish('vehicle/rebel/engine/state', $matches[1], true);
+                    MQTT::publish('vehicle/rebel/engine/ts', $eventRec['ts'], true);
                 }
 
                 $r->processed = 1;
